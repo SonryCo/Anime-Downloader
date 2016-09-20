@@ -24,12 +24,16 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Start));
             this.btnDwnl1 = new MaterialSkin.Controls.MaterialFlatButton();
             this.aniLink1 = new MaterialSkin.Controls.MaterialSingleLineTextField();
             this.modeTab = new MaterialSkin.Controls.MaterialTabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.clpbChk = new MaterialSkin.Controls.MaterialCheckBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.listDwl = new System.Windows.Forms.ListBox();
+            this.btnDels = new MaterialSkin.Controls.MaterialFlatButton();
+            this.btnAdw = new MaterialSkin.Controls.MaterialFlatButton();
             this.numCap = new System.Windows.Forms.NumericUpDown();
             this.hastaCap = new MaterialSkin.Controls.MaterialRadioButton();
             this.lastChap = new MaterialSkin.Controls.MaterialRadioButton();
@@ -41,7 +45,6 @@
             this.listChap = new System.Windows.Forms.ListBox();
             this.materialTabSelector1 = new MaterialSkin.Controls.MaterialTabSelector();
             this.lblAtit = new MaterialSkin.Controls.MaterialLabel();
-            this.animePic = new System.Windows.Forms.PictureBox();
             this.CookieMonster1 = new System.Windows.Forms.WebBrowser();
             this.lblTitulo = new MaterialSkin.Controls.MaterialLabel();
             this.lblEpis = new MaterialSkin.Controls.MaterialLabel();
@@ -54,17 +57,17 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.lblDani = new System.Windows.Forms.Label();
             this.lblDsp = new System.Windows.Forms.Label();
-            this.btnAdw = new MaterialSkin.Controls.MaterialFlatButton();
-            this.btnDels = new MaterialSkin.Controls.MaterialFlatButton();
             this.folderBD1 = new System.Windows.Forms.FolderBrowserDialog();
             this.autoDownloader = new System.Windows.Forms.Timer(this.components);
-            this.listDwl = new System.Windows.Forms.ListBox();
             this.tmrCtrl = new System.Windows.Forms.Timer(this.components);
             this.label1 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.animePic = new System.Windows.Forms.PictureBox();
             this.modeTab.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numCap)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.animePic)).BeginInit();
             this.SuspendLayout();
             // 
@@ -78,7 +81,7 @@
             this.btnDwnl1.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.btnDwnl1.MouseState = MaterialSkin.MouseState.HOVER;
             this.btnDwnl1.Name = "btnDwnl1";
-            this.btnDwnl1.Primary = false;
+            this.btnDwnl1.Primary = true;
             this.btnDwnl1.Size = new System.Drawing.Size(91, 36);
             this.btnDwnl1.TabIndex = 0;
             this.btnDwnl1.Text = "Descargar";
@@ -127,7 +130,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(606, 90);
+            this.tabPage1.Size = new System.Drawing.Size(606, 266);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Modo Normal";
             this.tabPage1.Click += new System.EventHandler(this.tabPage1_Click);
@@ -170,6 +173,47 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Modo Lista";
             this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
+            // 
+            // listDwl
+            // 
+            this.listDwl.FormattingEnabled = true;
+            this.listDwl.Location = new System.Drawing.Point(434, 161);
+            this.listDwl.Name = "listDwl";
+            this.listDwl.Size = new System.Drawing.Size(158, 43);
+            this.listDwl.TabIndex = 24;
+            this.listDwl.Visible = false;
+            // 
+            // btnDels
+            // 
+            this.btnDels.AutoSize = true;
+            this.btnDels.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnDels.Depth = 0;
+            this.btnDels.Location = new System.Drawing.Point(135, 213);
+            this.btnDels.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.btnDels.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnDels.Name = "btnDels";
+            this.btnDels.Primary = false;
+            this.btnDels.Size = new System.Drawing.Size(150, 36);
+            this.btnDels.TabIndex = 23;
+            this.btnDels.Text = "Eliminar Seleccion";
+            this.btnDels.UseVisualStyleBackColor = true;
+            this.btnDels.Visible = false;
+            // 
+            // btnAdw
+            // 
+            this.btnAdw.AutoSize = true;
+            this.btnAdw.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnAdw.Depth = 0;
+            this.btnAdw.Location = new System.Drawing.Point(418, 212);
+            this.btnAdw.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.btnAdw.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnAdw.Name = "btnAdw";
+            this.btnAdw.Primary = false;
+            this.btnAdw.Size = new System.Drawing.Size(181, 36);
+            this.btnAdw.TabIndex = 22;
+            this.btnAdw.Text = "Comenzar a Descargar";
+            this.btnAdw.UseVisualStyleBackColor = true;
+            this.btnAdw.Click += new System.EventHandler(this.btnAdw_Click);
             // 
             // numCap
             // 
@@ -339,16 +383,6 @@
             this.lblAtit.TabIndex = 5;
             this.lblAtit.Text = "Anime en Emision";
             // 
-            // animePic
-            // 
-            this.animePic.Location = new System.Drawing.Point(0, 85);
-            this.animePic.Name = "animePic";
-            this.animePic.Size = new System.Drawing.Size(614, 279);
-            this.animePic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.animePic.TabIndex = 6;
-            this.animePic.TabStop = false;
-            this.animePic.Click += new System.EventHandler(this.pictureBox1_Click);
-            // 
             // CookieMonster1
             // 
             this.CookieMonster1.Location = new System.Drawing.Point(521, 370);
@@ -465,51 +499,10 @@
             this.lblDsp.Size = new System.Drawing.Size(0, 13);
             this.lblDsp.TabIndex = 15;
             // 
-            // btnAdw
-            // 
-            this.btnAdw.AutoSize = true;
-            this.btnAdw.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnAdw.Depth = 0;
-            this.btnAdw.Location = new System.Drawing.Point(418, 212);
-            this.btnAdw.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
-            this.btnAdw.MouseState = MaterialSkin.MouseState.HOVER;
-            this.btnAdw.Name = "btnAdw";
-            this.btnAdw.Primary = false;
-            this.btnAdw.Size = new System.Drawing.Size(181, 36);
-            this.btnAdw.TabIndex = 22;
-            this.btnAdw.Text = "Comenzar a Descargar";
-            this.btnAdw.UseVisualStyleBackColor = true;
-            this.btnAdw.Click += new System.EventHandler(this.btnAdw_Click);
-            // 
-            // btnDels
-            // 
-            this.btnDels.AutoSize = true;
-            this.btnDels.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnDels.Depth = 0;
-            this.btnDels.Location = new System.Drawing.Point(135, 213);
-            this.btnDels.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
-            this.btnDels.MouseState = MaterialSkin.MouseState.HOVER;
-            this.btnDels.Name = "btnDels";
-            this.btnDels.Primary = false;
-            this.btnDels.Size = new System.Drawing.Size(150, 36);
-            this.btnDels.TabIndex = 23;
-            this.btnDels.Text = "Eliminar Seleccion";
-            this.btnDels.UseVisualStyleBackColor = true;
-            this.btnDels.Visible = false;
-            // 
             // autoDownloader
             // 
             this.autoDownloader.Interval = 500;
             this.autoDownloader.Tick += new System.EventHandler(this.autoDownloader_Tick);
-            // 
-            // listDwl
-            // 
-            this.listDwl.FormattingEnabled = true;
-            this.listDwl.Location = new System.Drawing.Point(434, 161);
-            this.listDwl.Name = "listDwl";
-            this.listDwl.Size = new System.Drawing.Size(158, 43);
-            this.listDwl.TabIndex = 24;
-            this.listDwl.Visible = false;
             // 
             // tmrCtrl
             // 
@@ -526,12 +519,34 @@
             this.label1.Text = "©Sonry";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
-            // Form1
+            // pictureBox1
+            // 
+            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox1.Image = global::Anime_Downloader.Properties.Resources.rem;
+            this.pictureBox1.Location = new System.Drawing.Point(7, 30);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(24, 24);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 17;
+            this.pictureBox1.TabStop = false;
+            // 
+            // animePic
+            // 
+            this.animePic.Location = new System.Drawing.Point(0, 85);
+            this.animePic.Name = "animePic";
+            this.animePic.Size = new System.Drawing.Size(614, 279);
+            this.animePic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.animePic.TabIndex = 6;
+            this.animePic.TabStop = false;
+            this.animePic.Click += new System.EventHandler(this.pictureBox1_Click);
+            // 
+            // Start
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(614, 702);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lblDsp);
             this.Controls.Add(this.lblDani);
@@ -546,9 +561,10 @@
             this.Controls.Add(this.materialTabSelector1);
             this.Controls.Add(this.modeTab);
             this.Controls.Add(this.animePic);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.Name = "Form1";
-            this.Text = "Anime Downloader";
+            this.Name = "Start";
+            this.Text = "     Anime Downloader";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.modeTab.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
@@ -556,6 +572,7 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numCap)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.animePic)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -601,6 +618,7 @@
         private System.Windows.Forms.ListBox listDwl;
         private System.Windows.Forms.Timer tmrCtrl;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 

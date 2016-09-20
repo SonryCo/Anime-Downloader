@@ -37,7 +37,7 @@ namespace Anime_Downloader {
         public string flder = "";
         private bool endcap = false;
         private bool selFuente = false;
-        private bool completado = false;
+        //private bool completado = false;
         private int timers = 0;
         public string titulo = "";
         private Stopwatch sw = new Stopwatch();
@@ -633,7 +633,7 @@ namespace Anime_Downloader {
         }
 
         private void inicio() {
-            completado=false;
+            //completado=false;
             //comboBox1.Enabled = false;
             //comboBox1.Text = "";
             links.Clear();
