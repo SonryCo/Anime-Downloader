@@ -28,6 +28,14 @@ namespace Anime_Downloader {
         public ArrayList ln = new ArrayList();
         public ArrayList tc = new ArrayList();
         public ArrayList aim = new ArrayList();
+        public ArrayList sources = new ArrayList();
+        public ArrayList links = new ArrayList();
+        public ArrayList linkcaps = new ArrayList();
+        public dlgFuente dlgF1 = new dlgFuente();
+        private bool endcap = false;
+        private bool selFuente = false;
+        public string titulo = "";
+        //public ArrayList aim = new ArrayList();
         public int cont = 0;
         public int r = 0;
         //SADOLDRES
@@ -123,23 +131,98 @@ namespace Anime_Downloader {
                 }
             }
         }
+        //jkanime
+        private void jkanime(string CUrl, string src) {
+            HtmlAgilityPack.HtmlDocument AniDoc = SNav(CUrl);
+            HtmlNodeCollection Sources = AniDoc.DocumentNode.SelectNodes("//a");
+            HtmlNodeCollection Urls = AniDoc.DocumentNode.SelectNodes("//iframe");
+            HtmlNodeCollection Titles = AniDoc.DocumentNode.SelectNodes("//div[@class='vervideo']");
+            int num = 0;
+            if (Sources!=null) {
+                foreach (HtmlNode Source in (IEnumerable<HtmlNode>)Sources) {
+                    if (Source.Id.Contains("btn-show-")) {
+                        sources.Add(Source.InnerText);
+                    }
+                }
+            }
+            if (Urls!=null) {
+                foreach (HtmlNode Url in (IEnumerable<HtmlNode>)Urls) {
+                    if (Url.GetAttributeValue("src", "falso").Contains("jkmedia")) {
+                        links.Add(Url.GetAttributeValue("src", "falso").Replace("jk.php?u=", ""));
+                        num++;
+                    }
+                }
+            }
+            if (Titles!=null) {
+                Text=Text+": "+Titles[0].InnerText;
+                titulo=Titles[0].InnerText;
+            }
+            //numC1.Text=num.ToString();
+            if (src.Equals("boton")) {
+                if (!selFuente) {
+                    dlgF1.sources=sources;
+                    dlgF1.cant=num;
+                    dlgF1.ShowDialog();
+                    selFuente=true;
+                }
+            }
+            else if (Titles!=null) {
+                if (!selFuente) {
+                    dlgF1.sources=sources;
+                    dlgF1.cant=num;
+                    dlgF1.ShowDialog();
+                    selFuente=true;
+                }
+                if (((links.Count-1)<dlgF1.selectd)||(links.Count>(dlgF1.selectd+1))) {
+                    if (sources.IndexOf(dlgF1.fname)!=-1) {
+                        listChap.Items.Add(Titles[0].InnerText);
+                        linkcaps.Add(links[sources.IndexOf(dlgF1.fname)]);
+                        listSour.Items.Add(sources[sources.IndexOf(dlgF1.fname)]);
+                    }
+                    else {
+                        listChap.Items.Add(Titles[0].InnerText);
+                        linkcaps.Add(links[0]);
+                        listSour.Items.Add(sources[0]);
+                    }
+                }
+                else {
+                    listChap.Items.Add(Titles[0].InnerText);
+                    linkcaps.Add(links[dlgF1.selectd]);
+                    listSour.Items.Add(sources[dlgF1.selectd]);
+                }
+            }
+            else {
+                //infLis1.Hide();
+                //MessageBox.Show("Terminado, Capitulos a\x00f1adidos a la Lista");
+                endcap=true;
+            }
+        }
 
 
-        private void Form1_Load(object sender, EventArgs e) {
-            CookieMonster1.Navigate("http://jkanime.net");
-            CookieMonster1.Stop();
-            label1.Parent=animePic;
-            //lblCont.Parent=animePic;
-            //lblEpis.Parent=animePic;
+        private void emiStart() {
+            lblTitulo.ForeColor=Color.White;
+            lblAtit.ForeColor=Color.White;
+            lblCont.ForeColor=Color.White;
+            lblEpis.ForeColor=Color.White;
+            lblCont.Parent=animePic;
+            lblEpis.Parent=animePic;
             lblTitulo.Parent=animePic;
+            lblAtit.Parent=animePic;
+            dwnlEmi.Parent=animePic;
             obtenerDestacados("http://jkanime.net");
             t2.Enabled=true;
             lblTitulo.Text=tc[r+r].ToString();
             lblEpis.Text=tc[(r+r)+1].ToString();
-            animePic.ImageLocation = aim[r].ToString();
+            animePic.ImageLocation=aim[r].ToString();
             //            this.linkDest = this.ln[this.r].ToString();
             lblCont.Text=(r+1)+"/"+ln.Count;
             r++;
+        }
+
+        private void Form1_Load(object sender, EventArgs e) {
+            CookieMonster1.Navigate("http://jkanime.net");
+            CookieMonster1.Stop();
+            emiStart();           
         }
 
         private void tabPage1_Click(object sender, EventArgs e) {
@@ -161,6 +244,29 @@ namespace Anime_Downloader {
         }
 
         private void pictureBox1_Click(object sender, EventArgs e) {
+
+        }
+
+        private void materialCheckBox1_CheckedChanged(object sender, EventArgs e) {
+            animePic.Visible=false;
+        }
+        private void toggleEmision() {
+            if (animePic.Visible==true) {
+                animePic.Visible=false;
+                modeTab.Location = new Point(0,85);
+            }
+            else {
+                animePic.Visible=true;
+                modeTab.Location=new Point(0, 364);
+            }
+        }
+        private void materialRaisedButton1_Click(object sender, EventArgs e) {
+            toggleEmision();
+            //Fuente f = new Fuente();
+            
+        }
+
+        private void materialTabSelector1_Click(object sender, EventArgs e) {
 
         }
     }
