@@ -15,8 +15,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Anime_Downloader {
-    public partial class Form1 : MaterialForm {
-        public Form1() {
+    public partial class Start : MaterialForm {
+        public Start() {
             InitializeComponent();
             var materialSkinManager = MaterialSkinManager.Instance;
             materialSkinManager.AddFormToManage(this);

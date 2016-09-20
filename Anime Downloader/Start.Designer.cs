@@ -1,5 +1,5 @@
 ﻿namespace Anime_Downloader {
-    partial class Form1 {
+    partial class Start {
         /// <summary>
         /// Variable del diseñador necesaria.
         /// </summary>
