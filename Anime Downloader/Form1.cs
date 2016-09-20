@@ -73,6 +73,7 @@ namespace Anime_Downloader {
             WebDl.Encoding=Encoding.UTF8;
             WebDl.Headers[HttpRequestHeader.UserAgent]="Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2";
             WebDl.DownloadFileAsync(url, path);
+            sw.Start();
             WebDl.DownloadProgressChanged+=delegate (object s, DownloadProgressChangedEventArgs e) {
             lblDani.Text="Descargando: "+listChap.Items[0]+":";
                 lblDsp.Text=$"{((((double)e.BytesReceived)/1024.0)/sw.Elapsed.TotalSeconds).ToString("0.00")} kb/s";
@@ -89,10 +90,14 @@ namespace Anime_Downloader {
             progressBar1.Value=0;
                 if ((refe==0)&&(cont>0)) {
             lblDani.Text="Detenido, Error x03";
-            delLis();
+                    lblDsp.Text="";
+                    sw.Reset();
+                    delLis();
                 }
                 else {
             lblDani.Text="Descargas Completadas:";
+                    lblDsp.Text="";
+                    sw.Reset();
                     refe=0;
                     timers=0;
                    tmrCtrl.Enabled=true;
@@ -260,6 +265,155 @@ namespace Anime_Downloader {
             }
         }
 
+        //AnimeFLV
+        private void animeflv(string CUrl, string src) {
+            HtmlAgilityPack.HtmlDocument document = SNav(CUrl);
+            HtmlNodeCollection Sources = document.DocumentNode.SelectNodes("//b");
+            HtmlNodeCollection Urls = document.DocumentNode.SelectNodes("//a");
+            HtmlNodeCollection Titles = document.DocumentNode.SelectNodes("//h1");
+            int num = 0;
+            if (Sources!=null) {
+                foreach (HtmlNode Source in (IEnumerable<HtmlNode>)Sources) {
+                    if (Source.InnerText.Contains("Opci\x00f3n D")) {
+                        sources.Add(Source.InnerText);
+                    }
+                }
+            }
+            else {
+                //textBox3.Text = textBox3.Text + "ecap!x203";
+                endcap=true;
+            }
+            if (Urls!=null) {
+                foreach (HtmlNode Url in (IEnumerable<HtmlNode>)Urls) {
+                    if (Url.GetAttributeValue("href", "falso").Contains("d.php")) {
+                        links.Add(Url.GetAttributeValue("href", "falso"));
+                        num++;
+                    }
+                }
+            }
+            else {
+                //textBox3.Text = textBox3.Text + "ecap!x203";
+                endcap=true;
+            }
+            if (Titles!=null) {
+                //Text=Text+": "+Titles[0].InnerText;
+                titulo=Titles[0].InnerText;
+            }
+            else {
+                //textBox3.Text = textBox3.Text + "ecap!x203";
+                endcap=true;
+            }
+            //numC1.Text=num.ToString();
+            if (!src.Equals("boton")) {
+                if (Titles!=null) {
+                    listChap.Items.Add(Titles[0].InnerText);
+                    linkcaps.Add(links[0]);
+                    listSour.Items.Add(sources[0]);
+                }
+                else {
+                    //infLis1.Hide();
+                    MessageBox.Show("Terminado, Capitulos a\x00f1adidos a la Lista");
+                    endcap=true;
+                }
+            }
+        }
+
+        //AnimeYT
+        private void animeYT(string CUrl, string src) {
+            HtmlAgilityPack.HtmlDocument document = SNav(CUrl);
+            HtmlNodeCollection Scripts = document.DocumentNode.SelectNodes("//script");
+            HtmlNodeCollection Descs = document.DocumentNode.SelectNodes("//a");
+            HtmlNodeCollection Urls = document.DocumentNode.SelectNodes("//link[@rel='image_src']");
+            HtmlNodeCollection Titles = document.DocumentNode.SelectNodes("//h1");
+            if (Descs!=null) {
+                foreach (HtmlNode Desc in (IEnumerable<HtmlNode>)Descs) {
+                    if (Desc.GetAttributeValue("href", "falso").Contains("descargar")) {
+                        string oldValue = "http://www.animeyt.tv/descargar/";
+                        string str2 = Desc.GetAttributeValue("href", "falso").Replace(oldValue, "");
+                        //textBox3.Text = textBox3.Text + str2;
+                        links.Add("http://api.animeyt.tv/api/mirror1/"+str2);
+                        links.Add("http://api.animeyt.tv/api/mirror6/"+str2);
+                        sources.Add("720p 1");
+                        sources.Add("720p 2 (Recomendado)");
+                        //numC1.Text="2";
+                        cont=2;
+                    }
+                }
+            }
+            else {
+                //textBox3.Text = textBox3.Text + "ecap!x203";
+                endcap=true;
+            }
+            if (Urls!=null) {
+                foreach (HtmlNode Url in (IEnumerable<HtmlNode>)Urls) {
+                    if (Url.GetAttributeValue("href", "falso").Contains("banner")) {
+                        string str3 = "http://www.animeyt.tv/files/img/series/";
+                        char[] separator = new char[] { '_' };
+                        string[] strArray = Url.GetAttributeValue("href", "falso").Replace(str3, "").Split(separator);
+                        links.Add(string.Concat(new object[] { "http://s2.animeyt.tv/lola.php?cd=", strArray[1], "&file=", numeroLink() }));
+                        links.Add(string.Concat(new object[] { "http://s2.animeyt.tv/naruto.php?id=", strArray[1], "&file=", numeroLink(), ".mp4" }));
+                        links.Add(string.Concat(new object[] { "http://s4.animeyt.tv/chumi.php?cd=", strArray[1], "&file=", numeroLink() }));
+                        sources.Add("Lola");
+                        sources.Add("Naruto");
+                        sources.Add("Chumi");
+                        //numC1.Text = "5";
+                        cont=5;
+                    }
+                }
+            }
+            else {
+                //infLis1.Hide();
+                endcap=true;
+            }
+            if (Titles!=null) {
+                string str5 = Titles[0].InnerText.Replace("sub espa\x00f1ol", "").Replace("\n", "");
+                //Text = Text + ": " + str5;
+                titulo=str5;
+            }
+            else {
+                //infLis1.Hide();
+                endcap=true;
+            }
+            if (src.Equals("boton")) {
+                if (!selFuente) {
+                    dlgF1.sources=sources;
+                    dlgF1.cant=cont;
+                    dlgF1.ShowDialog();
+                    selFuente=true;
+                }
+            }
+            else if (Titles!=null) {
+                string item = Titles[0].InnerText.Replace("sub espa\x00f1ol", "").Replace("\n", "");
+                if (!selFuente) {
+                    dlgF1.sources=sources;
+                    dlgF1.cant=cont;
+                    dlgF1.ShowDialog();
+                    selFuente=true;
+                }
+                if (((links.Count-1)<dlgF1.selectd)||(links.Count>(dlgF1.selectd+1))) {
+                    if (sources.IndexOf(dlgF1.fname)!=-1) {
+                        listChap.Items.Add(item);
+                        linkcaps.Add(links[sources.IndexOf(dlgF1.fname)]);
+                        listSour.Items.Add(sources[sources.IndexOf(dlgF1.fname)]);
+                    }
+                    else {
+                        listChap.Items.Add(item);
+                        linkcaps.Add(links[0]);
+                        listSour.Items.Add(sources[0]);
+                    }
+                }
+                else {
+                    listChap.Items.Add(item);
+                    linkcaps.Add(links[dlgF1.selectd]);
+                    listSour.Items.Add(sources[dlgF1.selectd]);
+                }
+            }
+            else {
+                //infLis1.Hide();
+                MessageBox.Show("Terminado, Capitulos a\x00f1adidos a la Lista");
+                endcap=true;
+            }
+        }
 
         //Obtiene numero de capitulo desde el link
         private int numeroLink() {
@@ -303,7 +457,7 @@ namespace Anime_Downloader {
                 jkanime(aniLink2.Text, "lista");
             }
             if (capitulos[count].ToString().Contains("animeflv")) {
-                //animeflv(aniLink2.Text, "lista");
+                animeflv(aniLink2.Text, "lista");
             }
             if (capitulos[count].ToString().Contains("animeyt")) {
                 //animeYT(aniLink2.Text, "lista");
@@ -318,7 +472,7 @@ namespace Anime_Downloader {
                 jkanime(capu, "lista");
             }
             if (capitulos[count].ToString().Contains("animeflv")) {
-                //animeflv(capu, "lista");
+                animeflv(capu, "lista");
             }
             if (capitulos[count].ToString().Contains("animeyt")) {
                 //animeYT(capu, "lista");
@@ -490,6 +644,9 @@ namespace Anime_Downloader {
         }
 
         private void Form1_Load(object sender, EventArgs e) {
+            inicio();
+            Size=new Size(614, 520);
+            modeTab.Size=new Size(614, 116);
             CookieMonster1.Navigate("http://jkanime.net");
             CookieMonster1.Stop();
             emiStart();           
@@ -524,10 +681,23 @@ namespace Anime_Downloader {
             if (animePic.Visible==true) {
                 animePic.Visible=false;
                 modeTab.Location = new Point(0,85);
+                if (modeTab.SelectedIndex == 0) {
+                    Size=new Size(614, 241);
+                }else {
+                    Size=new Size(614, 403);
+                }
+                
             }
             else {
                 animePic.Visible=true;
                 modeTab.Location=new Point(0, 364);
+                Size=new Size(614, 682);
+                if (modeTab.SelectedIndex==0) {
+                    Size=new Size(614, 520);
+                }
+                else {
+                    Size=new Size(614, 682);
+                }
             }
         }
         private void materialRaisedButton1_Click(object sender, EventArgs e) {
@@ -540,6 +710,7 @@ namespace Anime_Downloader {
             //MessageBox.Show(modeTab.SelectedIndex.ToString());
             if (modeTab.SelectedIndex==0) {
                 modeTab.Size=new Size(614, 116);
+                
             }
             else {
                 
@@ -592,12 +763,39 @@ namespace Anime_Downloader {
         }
 
         private void modeTab_SelectedIndexChanged(object sender, EventArgs e) {
-            if (modeTab.SelectedIndex==0) {
+            /*if (modeTab.SelectedIndex==0) {
                 modeTab.Size=new Size(614, 116);
             }
             else {
 
                 modeTab.Size=new Size(614, 282);
+            }*/
+            if (animePic.Visible==false) {
+                //animePic.Visible=false;
+                modeTab.Location=new Point(0, 85);
+                if (modeTab.SelectedIndex==0) {
+                    modeTab.Size=new Size(614, 116);
+                    Size=new Size(614, 241);
+                }
+                else {
+                    modeTab.Size=new Size(614, 282);
+                    Size=new Size(614, 403);
+                }
+
+            }
+            else {
+                //animePic.Visible=true;
+                modeTab.Location=new Point(0, 364);
+                Size=new Size(614, 682);
+                if (modeTab.SelectedIndex==0) {
+                    modeTab.Size=new Size(614, 116);
+                    Size=new Size(614, 520);
+                }
+                else {
+                    modeTab.Size=new Size(614, 282);
+                    Size=new Size(614, 682);
+
+                }
             }
         }
 
@@ -674,9 +872,14 @@ namespace Anime_Downloader {
         }
 
         private void autoDownloader_Tick(object sender, EventArgs e) {
+            char[] separators = new char[] { '\\', '/', ':', '?', '¿', '"','<','>','|' };
             cont=listChap.Items.Count;
             if (cont>=1) {
-                object[] objArray1 = new object[] { flder, @"\", listChap.Items[0], ".mp4" };
+                string caname = listChap.Items[0].ToString();
+                string[] temp = caname.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                caname=String.Join(" ", temp);
+                //caname = caname.Replace(separators, "\n");
+                object[] objArray1 = new object[] { flder, @"\", caname , ".mp4" };
                 string path = string.Concat(objArray1);
                 Uri url = new Uri(linkcaps[0].ToString());
                 BajarLista(url, path);
@@ -699,6 +902,38 @@ namespace Anime_Downloader {
                 autoDownloader.Enabled=true;
             }
             timers++;
+        }
+
+        private void hastaCap_CheckedChanged(object sender, EventArgs e) {
+            numCap.Value=numeroLink()+1;
+        }
+
+        private void dwnlEmi_Click(object sender, EventArgs e) {
+            if (modeTab.SelectedIndex==0) {
+                aniLink1.Text=ln[(r==0 ? 0 : r-1)].ToString();
+                btnDwnl1_Click(sender,e);
+                //modeTab.Size=new Size(614, 116);
+            }
+            else {
+                aniLink2.Text=ln[(r==0?0:r-1)].ToString();
+                btnDwnl2_Click(sender, e);
+                //modeTab.Size=new Size(614, 282);
+            }
+        }
+
+        private void listChap_SelectedIndexChanged(object sender, EventArgs e) {
+            listSour.SelectedIndex=listChap.SelectedIndex;
+            btnDels.Visible=true;
+        }
+
+        private void listSour_SelectedIndexChanged(object sender, EventArgs e) {
+            listChap.SelectedIndex = listSour.SelectedIndex;
+            btnDels.Visible=true;
+        }
+
+        private void label1_Click(object sender, EventArgs e) {
+            MessageBox.Show("Sonry Anime Downloader Beta MD1 \n Descarga animes desde JkAnime, AnimeFlv y AnimeYT completamente gratis.\n\n La cantidad de fuentes dependen de cada sitio, anim\x00e9 y cap\x00edtulo.\n\n Fuentes actualmente disponibles: AnimeFlv, JkAnime y AnimeYT.\n\nBugs:\n-Se necesita Debug.\n\n Por Hacer: \n-A\x00f1adir m\x00e1s fuentes.\n-Editor de fuentes en listas.\n \n Utilizamos librer\x00edas de: \n -HtmlAgilityPack \n MaterialSkin \n -Sonry Rem 2.7 \n\nOrigenes totalmente independientes a los Servidores de Sonry \n\n \x00a92016 Sonry Corporation", "Acerca De Sonry Anime Downloader");
+
         }
     }
 }

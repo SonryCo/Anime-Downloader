@@ -60,6 +60,7 @@
             this.autoDownloader = new System.Windows.Forms.Timer(this.components);
             this.listDwl = new System.Windows.Forms.ListBox();
             this.tmrCtrl = new System.Windows.Forms.Timer(this.components);
+            this.label1 = new System.Windows.Forms.Label();
             this.modeTab.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -112,7 +113,7 @@
             this.modeTab.MouseState = MaterialSkin.MouseState.HOVER;
             this.modeTab.Name = "modeTab";
             this.modeTab.SelectedIndex = 0;
-            this.modeTab.Size = new System.Drawing.Size(614, 283);
+            this.modeTab.Size = new System.Drawing.Size(614, 292);
             this.modeTab.TabIndex = 3;
             this.modeTab.SelectedIndexChanged += new System.EventHandler(this.modeTab_SelectedIndexChanged);
             this.modeTab.TabIndexChanged += new System.EventHandler(this.modeTab_TabIndexChanged);
@@ -126,7 +127,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(606, 257);
+            this.tabPage1.Size = new System.Drawing.Size(606, 90);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Modo Normal";
             this.tabPage1.Click += new System.EventHandler(this.tabPage1_Click);
@@ -165,7 +166,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(606, 257);
+            this.tabPage2.Size = new System.Drawing.Size(606, 266);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Modo Lista";
             this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
@@ -205,9 +206,9 @@
             this.hastaCap.Ripple = true;
             this.hastaCap.Size = new System.Drawing.Size(69, 30);
             this.hastaCap.TabIndex = 20;
-            this.hastaCap.TabStop = true;
             this.hastaCap.Text = "Hasta: ";
             this.hastaCap.UseVisualStyleBackColor = true;
+            this.hastaCap.CheckedChanged += new System.EventHandler(this.hastaCap_CheckedChanged);
             // 
             // lastChap
             // 
@@ -229,6 +230,7 @@
             // unCap
             // 
             this.unCap.AutoSize = true;
+            this.unCap.Checked = true;
             this.unCap.Depth = 0;
             this.unCap.Font = new System.Drawing.Font("Roboto", 10F);
             this.unCap.Location = new System.Drawing.Point(479, 45);
@@ -252,7 +254,7 @@
             this.btnDwnl2.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.btnDwnl2.MouseState = MaterialSkin.MouseState.HOVER;
             this.btnDwnl2.Name = "btnDwnl2";
-            this.btnDwnl2.Primary = false;
+            this.btnDwnl2.Primary = true;
             this.btnDwnl2.Size = new System.Drawing.Size(114, 36);
             this.btnDwnl2.TabIndex = 17;
             this.btnDwnl2.Text = "Añadir a Lista";
@@ -296,18 +298,20 @@
             // listSour
             // 
             this.listSour.FormattingEnabled = true;
-            this.listSour.Location = new System.Drawing.Point(332, 47);
+            this.listSour.Location = new System.Drawing.Point(374, 47);
             this.listSour.Name = "listSour";
             this.listSour.Size = new System.Drawing.Size(90, 160);
             this.listSour.TabIndex = 1;
+            this.listSour.SelectedIndexChanged += new System.EventHandler(this.listSour_SelectedIndexChanged);
             // 
             // listChap
             // 
             this.listChap.FormattingEnabled = true;
             this.listChap.Location = new System.Drawing.Point(6, 47);
             this.listChap.Name = "listChap";
-            this.listChap.Size = new System.Drawing.Size(320, 160);
+            this.listChap.Size = new System.Drawing.Size(362, 160);
             this.listChap.TabIndex = 0;
+            this.listChap.SelectedIndexChanged += new System.EventHandler(this.listChap_SelectedIndexChanged);
             // 
             // materialTabSelector1
             // 
@@ -364,9 +368,9 @@
             this.lblTitulo.Location = new System.Drawing.Point(9, 222);
             this.lblTitulo.MouseState = MaterialSkin.MouseState.HOVER;
             this.lblTitulo.Name = "lblTitulo";
-            this.lblTitulo.Size = new System.Drawing.Size(88, 19);
+            this.lblTitulo.Size = new System.Drawing.Size(87, 19);
             this.lblTitulo.TabIndex = 8;
-            this.lblTitulo.Text = "Sonry\'S Life";
+            this.lblTitulo.Text = "Sonry\'s Life";
             // 
             // lblEpis
             // 
@@ -428,6 +432,7 @@
             this.dwnlEmi.TabIndex = 12;
             this.dwnlEmi.Text = "Comenzar Descarga";
             this.dwnlEmi.UseVisualStyleBackColor = true;
+            this.dwnlEmi.Click += new System.EventHandler(this.dwnlEmi_Click);
             // 
             // t1
             // 
@@ -435,15 +440,17 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(2, 665);
+            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.progressBar1.Location = new System.Drawing.Point(3, 689);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(609, 11);
             this.progressBar1.TabIndex = 13;
             // 
             // lblDani
             // 
+            this.lblDani.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblDani.AutoSize = true;
-            this.lblDani.Location = new System.Drawing.Point(1, 648);
+            this.lblDani.Location = new System.Drawing.Point(1, 673);
             this.lblDani.Name = "lblDani";
             this.lblDani.Size = new System.Drawing.Size(157, 13);
             this.lblDani.TabIndex = 14;
@@ -451,12 +458,12 @@
             // 
             // lblDsp
             // 
+            this.lblDsp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblDsp.AutoSize = true;
-            this.lblDsp.Location = new System.Drawing.Point(563, 650);
+            this.lblDsp.Location = new System.Drawing.Point(519, 673);
             this.lblDsp.Name = "lblDsp";
-            this.lblDsp.Size = new System.Drawing.Size(41, 13);
+            this.lblDsp.Size = new System.Drawing.Size(0, 13);
             this.lblDsp.TabIndex = 15;
-            this.lblDsp.Text = "0/kbps";
             // 
             // btnAdw
             // 
@@ -488,6 +495,7 @@
             this.btnDels.TabIndex = 23;
             this.btnDels.Text = "Eliminar Seleccion";
             this.btnDels.UseVisualStyleBackColor = true;
+            this.btnDels.Visible = false;
             // 
             // autoDownloader
             // 
@@ -501,17 +509,30 @@
             this.listDwl.Name = "listDwl";
             this.listDwl.Size = new System.Drawing.Size(158, 43);
             this.listDwl.TabIndex = 24;
+            this.listDwl.Visible = false;
             // 
             // tmrCtrl
             // 
             this.tmrCtrl.Tick += new System.EventHandler(this.tmrCtrl_Tick);
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(568, 657);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(43, 13);
+            this.label1.TabIndex = 16;
+            this.label1.Text = "©Sonry";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(614, 682);
+            this.ClientSize = new System.Drawing.Size(614, 702);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.lblDsp);
             this.Controls.Add(this.lblDani);
             this.Controls.Add(this.progressBar1);
@@ -527,7 +548,7 @@
             this.Controls.Add(this.animePic);
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "AnimeDownloader";
+            this.Text = "Anime Downloader";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.modeTab.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
@@ -579,6 +600,7 @@
         private System.Windows.Forms.Timer autoDownloader;
         private System.Windows.Forms.ListBox listDwl;
         private System.Windows.Forms.Timer tmrCtrl;
+        private System.Windows.Forms.Label label1;
     }
 }
 
