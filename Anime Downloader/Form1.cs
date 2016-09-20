@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net;
@@ -31,10 +32,15 @@ namespace Anime_Downloader {
         public ArrayList sources = new ArrayList();
         public ArrayList links = new ArrayList();
         public ArrayList linkcaps = new ArrayList();
+        public ArrayList capitulos = new ArrayList();
         public dlgFuente dlgF1 = new dlgFuente();
+        public string flder = "";
         private bool endcap = false;
         private bool selFuente = false;
+        private bool completado = false;
+        private int timers = 0;
         public string titulo = "";
+        private Stopwatch sw = new Stopwatch();
         //public ArrayList aim = new ArrayList();
         public int cont = 0;
         public int r = 0;
@@ -63,14 +69,15 @@ namespace Anime_Downloader {
         //Descargas de Lista
         private void BajarLista(Uri url, string path) {
             int refe = 0;
-        //TIMER    autoDownloader.Enabled=false;
+            autoDownloader.Enabled=false;
             WebDl.Encoding=Encoding.UTF8;
             WebDl.Headers[HttpRequestHeader.UserAgent]="Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.874.121 Safari/535.2";
             WebDl.DownloadFileAsync(url, path);
             WebDl.DownloadProgressChanged+=delegate (object s, DownloadProgressChangedEventArgs e) {
-       //         label10.Text="Descargando: "+listBox1.Items[0]+":";
-       //PB         progressBar1.Value=e.ProgressPercentage;
-       //         autoDownloader.Enabled=false;
+            lblDani.Text="Descargando: "+listChap.Items[0]+":";
+                lblDsp.Text=$"{((((double)e.BytesReceived)/1024.0)/sw.Elapsed.TotalSeconds).ToString("0.00")} kb/s";
+                progressBar1.Value=e.ProgressPercentage;
+            autoDownloader.Enabled=false;
                 if (e.ProgressPercentage>=0x5f) {
                     refe=1;
                 }
@@ -79,18 +86,73 @@ namespace Anime_Downloader {
                 }
             };
             WebDl.DownloadFileCompleted+=delegate (object s, AsyncCompletedEventArgs e) {
-            //PONER PBAR   progressBar1.Value=0;
+            progressBar1.Value=0;
                 if ((refe==0)&&(cont>0)) {
-            //Label de avisos        label10.Text="Detenido, Error x03";
-           //         delLis();
+            lblDani.Text="Detenido, Error x03";
+            delLis();
                 }
                 else {
-          //          label10.Text="Descargas Completadas:";
+            lblDani.Text="Descargas Completadas:";
                     refe=0;
-         //           timers=0;
-         //           timer1.Enabled=true;
+                    timers=0;
+                   tmrCtrl.Enabled=true;
                 }
             };
+        }
+
+        //Descargador Normal
+
+        private void dwnAni(Uri url, string path) {
+            WebDl.Encoding=Encoding.UTF8;
+            WebDl.Headers[HttpRequestHeader.UserAgent]="Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
+            WebDl.Headers[HttpRequestHeader.Cookie]=CookieMonster1.Document.Cookie;
+            if (url.ToString().Contains("animeflv.net")) {
+                Uri address = new Uri(specDownload(url.ToString()));
+                WebDl.DownloadFileAsync(address, path);
+                sw.Start();
+                WebDl.DownloadProgressChanged+=delegate (object s, DownloadProgressChangedEventArgs e) {
+                    lblDani.Text="Descargando: "+titulo+":";
+                    lblDsp.Text=$"{((((double)e.BytesReceived)/1024.0)/sw.Elapsed.TotalSeconds).ToString("0.00")} kb/s";
+                    progressBar1.Value=e.ProgressPercentage;
+                };
+                WebDl.DownloadFileCompleted+=delegate (object s, AsyncCompletedEventArgs e) {
+                    progressBar1.Value=0;
+                    lblDani.Text="Descarga Completa:";
+                    lblDsp.Text="";
+                    sw.Reset();
+                    lblDsp.Text="";
+                    MessageBox.Show("Descarga Completa!");
+                };
+            }
+            else {
+                WebDl.DownloadFileAsync(url, path);
+                sw.Start();
+                WebDl.DownloadProgressChanged+=delegate (object s, DownloadProgressChangedEventArgs e) {
+                    lblDani.Text="Descargando: "+titulo+":";
+                    progressBar1.Value=e.ProgressPercentage;
+                    lblDsp.Text=$"{((((double)e.BytesReceived)/1024.0)/sw.Elapsed.TotalSeconds).ToString("0.00")} kb/s";
+                };
+                WebDl.DownloadFileCompleted+=delegate (object s, AsyncCompletedEventArgs e) {
+                    progressBar1.Value=0;
+                    lblDani.Text="Descarga Completa:";
+                    sw.Reset();
+                    lblDsp.Text="";
+                    MessageBox.Show("Descarga Completa!");
+                };
+            }
+        }
+
+        //Descargas especiales
+        private string specDownload(string url) {
+            string attributeValue = "";
+            HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+            string html = WebDl.DownloadString(url);
+            document.LoadHtml(html);
+            HtmlNodeCollection nodes = document.DocumentNode.SelectNodes("//meta[@http-equiv='refresh']");
+            foreach (HtmlNode node in (IEnumerable<HtmlNode>)nodes) {
+                attributeValue=node.GetAttributeValue("content", "");
+            }
+            return attributeValue.Replace("0; URL=", "");
         }
 
         //Destacados
@@ -154,7 +216,7 @@ namespace Anime_Downloader {
                 }
             }
             if (Titles!=null) {
-                Text=Text+": "+Titles[0].InnerText;
+                //Text=Text+": "+Titles[0].InnerText;
                 titulo=Titles[0].InnerText;
             }
             //numC1.Text=num.ToString();
@@ -199,6 +261,203 @@ namespace Anime_Downloader {
         }
 
 
+        //Obtiene numero de capitulo desde el link
+        private int numeroLink() {
+            if (aniLink2.Text.Contains("jkanime.net")) {
+                char ch = '/';
+                char[] separator = new char[] { ch };
+                string[] strArray = aniLink2.Text.Split(separator);
+                if (strArray.Length>=6) {
+                    return int.Parse(strArray[strArray.Length-2]);
+                }
+                return int.Parse(strArray[strArray.Length-1]);
+            }
+            if (aniLink2.Text.Contains("animeflv.net")) {
+                char ch2 = '/';
+                char[] chArray2 = new char[] { ch2 };
+                string str3 = aniLink2.Text.Split(chArray2)[4].Replace(".html", "");
+                char ch3 = '-';
+                char[] chArray3 = new char[] { ch3 };
+                string[] strArray3 = str3.Split(chArray3);
+                string s = strArray3[strArray3.Length-1];
+                return int.Parse(s);
+            }
+            if (aniLink2.Text.Contains("animeyt.tv")) {
+                char ch4 = '/';
+                char[] chArray4 = new char[] { ch4 };
+                string str6 = aniLink2.Text.Split(chArray4)[4].Replace("-sub-espanol", "");
+                char ch5 = '-';
+                char[] chArray5 = new char[] { ch5 };
+                string[] strArray5 = str6.Split(chArray5);
+                string str7 = strArray5[strArray5.Length-1];
+                return int.Parse(str7);
+            }
+            return 0;
+        }
+        //Lista animes
+        private void listAnime() {
+            int count = listChap.Items.Count;
+            inicio();
+            t1.Enabled=true;
+            if (capitulos[count].ToString().Contains("jkanime")) {
+                jkanime(aniLink2.Text, "lista");
+            }
+            if (capitulos[count].ToString().Contains("animeflv")) {
+                //animeflv(aniLink2.Text, "lista");
+            }
+            if (capitulos[count].ToString().Contains("animeyt")) {
+                //animeYT(aniLink2.Text, "lista");
+            }
+        }
+        //Lista Capitulos
+        private void capsAnime(string capu) {
+            int count = listChap.Items.Count;
+            inicio();
+            t1.Enabled=true;
+            if (capitulos[count].ToString().Contains("jkanime")) {
+                jkanime(capu, "lista");
+            }
+            if (capitulos[count].ToString().Contains("animeflv")) {
+                //animeflv(capu, "lista");
+            }
+            if (capitulos[count].ToString().Contains("animeyt")) {
+                //animeYT(capu, "lista");
+            }
+        }
+        //Limpiador de residuos
+        private void delLis() {
+            capitulos.Clear();
+            linkcaps.Clear();
+            btnAdw.Enabled=true;
+            btnDels.Enabled=true;
+            btnCli.Enabled=true;
+            linkcaps.Clear();
+            sources.Clear();
+            lblDani.Text="No se est\x00e1 descargando nada:";
+            lblDsp.Text="";
+        }
+
+        //Añade capitulos dependiendo de la opcion del usuario
+        private void agregaCapitulos(int ini, int fin) {
+            MessageBox.Show("Dependiendo de la cantidad de capitulos es la demora del programa en encontrarlos, presiona Aceptar para continuar :D");
+            if (aniLink2.Text.Contains("jkanime.net")) {
+                string[] strArray;
+                char ch = '/';
+                string str2 = "";
+                endcap=false;
+                if (aniLink2.Text.Contains("http://")||aniLink2.Text.Contains("https://")) {
+                    char[] separator = new char[] { ch };
+                    strArray=aniLink2.Text.Split(separator);
+                    if (strArray.Length>=6) {
+                        for (int i = 0; i<=(strArray.Length-3); i++) {
+                            str2=str2+strArray[i]+"/";
+                        }
+                    }
+                    else {
+                        for (int j = 0; j<=(strArray.Length-2); j++) {
+                            str2=str2+strArray[j]+"/";
+                        }
+                    }
+                    //infLis1.Show();
+                    while (!endcap) {
+                        if (ini==fin) {
+                            //infLis1.Hide();
+                            MessageBox.Show("Terminado, Capitulos a\x00f1adidos a la Lista");
+                            endcap=true;
+                        }
+                        //infLis1.cambioTexto(titulo);
+                        //textBox3.Text=ini+textBox3.Text+"|";
+                        inicio();
+                        capitulos.Add(str2+ini);
+                        capsAnime(str2+ini);
+                        ini++;
+                    }
+                }
+                else {
+                    aniLink2.Text="http://"+aniLink2.Text;
+                    char[] chArray2 = new char[] { ch };
+                    strArray=aniLink2.Text.Split(chArray2);
+                    if (strArray.Length>=6) {
+                        for (int k = 0; k<=(strArray.Length-3); k++) {
+                            str2=str2+strArray[k]+"/";
+                        }
+                    }
+                    else {
+                        for (int m = 0; m<=(strArray.Length-2); m++) {
+                            str2=str2+strArray[m]+"/";
+                        }
+                    }
+                    //infLis1.Show();
+                    while (!endcap) {
+                        if (ini==fin) {
+                            //infLis1.Hide();
+                            MessageBox.Show("Terminado, Capitulos a\x00f1adidos a la Lista");
+                            endcap=true;
+                        }
+                        //infLis1.cambioTexto(titulo);
+                        inicio();
+                        capitulos.Add(str2+ini);
+                        capsAnime(str2+ini);
+                        ini++;
+                    }
+                }
+            }
+            else if (aniLink2.Text.Contains("animeflv.net")) {
+                endcap=false;
+                string str3 = "http://animeflv.net/ver/";
+                string str5 = "";
+                char ch2 = '/';
+                char[] chArray3 = new char[] { ch2 };
+                string str6 = aniLink2.Text.Split(chArray3)[4].Replace(".html", "");
+                char ch3 = '-';
+                char[] chArray4 = new char[] { ch3 };
+                string[] strArray3 = str6.Split(chArray4);
+                for (int n = 0; n<=(strArray3.Length-2); n++) {
+                    str5=str5+strArray3[n]+"-";
+                }
+                //infLis1.Show();
+                while (!endcap) {
+                    if (ini==fin) {
+                        //infLis1.Hide();
+                        MessageBox.Show("Terminado, Capitulos a\x00f1adidos a la Lista");
+                        endcap=true;
+                    }
+                    //infLis1.cambioTexto(titulo);
+                    inicio();
+                    capitulos.Add(string.Concat(new object[] { str3, str5, ini, ".html" }));
+                    capsAnime(string.Concat(new object[] { str3, str5, ini, ".html" }));
+                    ini++;
+                }
+            }
+            else if (aniLink2.Text.Contains("animeyt.tv")) {
+                endcap=false;
+                string str7 = "http://animeyt.tv/ver/";
+                string str9 = "";
+                char ch4 = '/';
+                char[] chArray5 = new char[] { ch4 };
+                string str10 = aniLink2.Text.Split(chArray5)[4].Replace("-sub-espanol", "");
+                char ch5 = '-';
+                char[] chArray6 = new char[] { ch5 };
+                string[] strArray5 = str10.Split(chArray6);
+                for (int num6 = 0; num6<=(strArray5.Length-2); num6++) {
+                    str9=str9+strArray5[num6]+"-";
+                }
+                //infLis1.Show();
+                while (!endcap) {
+                    if (ini==fin) {
+                        //infLis1.Hide();
+                        MessageBox.Show("Terminado, Capitulos a\x00f1adidos a la Lista");
+                        endcap=true;
+                    }
+                    //infLis1.cambioTexto(titulo);
+                    inicio();
+                    capitulos.Add(string.Concat(new object[] { str7, str9, ini, "-sub-espanol" }));
+                    capsAnime(string.Concat(new object[] { str7, str9, ini, "-sub-espanol" }));
+                    ini++;
+                }
+            }
+        }
+
         private void emiStart() {
             lblTitulo.ForeColor=Color.White;
             lblAtit.ForeColor=Color.White;
@@ -217,6 +476,17 @@ namespace Anime_Downloader {
             //            this.linkDest = this.ln[this.r].ToString();
             lblCont.Text=(r+1)+"/"+ln.Count;
             r++;
+        }
+
+        private void inicio() {
+            completado=false;
+            //comboBox1.Enabled = false;
+            //comboBox1.Text = "";
+            links.Clear();
+            sources.Clear();
+            //comboBox1.Items.Clear();
+            //numC1.Text = "0";
+            //this.Text = "Sonry Anime Downloader Beta 4.8";
         }
 
         private void Form1_Load(object sender, EventArgs e) {
@@ -267,7 +537,168 @@ namespace Anime_Downloader {
         }
 
         private void materialTabSelector1_Click(object sender, EventArgs e) {
+            //MessageBox.Show(modeTab.SelectedIndex.ToString());
+            if (modeTab.SelectedIndex==0) {
+                modeTab.Size=new Size(614, 116);
+            }
+            else {
+                
+                modeTab.Size=new Size(614, 282);
+            }
+        }
 
+        private void t1_Tick(object sender, EventArgs e) {
+            if (sources.Count<0) {
+                t1.Enabled=false;
+                MessageBox.Show("La url no contiene ningun capitulo ni fuentes, revisa bien.");
+            }
+        }
+
+        private void btnDwnl1_Click(object sender, EventArgs e) {
+            selFuente=false;
+            inicio();
+            t1.Enabled=true;
+            if (aniLink1.Text.Contains("jkanime")) {
+                jkanime(aniLink1.Text, "boton");
+            }
+            //if (aniLink1.Text.Contains("animeflv")) {
+            //    animeflv(aniLink1.Text, "boton");
+           // }
+           // if (textBox1.Text.Contains("animeyt")) {
+           //     animeYT(textBox1.Text, "boton");
+           // }
+            if (clpbChk.Checked) {
+                Clipboard.SetText(links[dlgF1.selectd].ToString());
+                MessageBox.Show("El Link ha sido copiado al Portapapeles", "Sonry Anime Downloader");
+            }
+            else {
+                saveFileDialog1.FileName=titulo;
+                saveFileDialog1.DefaultExt="mp4";
+                saveFileDialog1.Filter="Archivo de Video mp4 (*.mp4)|*.mp4";
+                if (saveFileDialog1.ShowDialog()==DialogResult.OK) {
+                    string fileName = saveFileDialog1.FileName;
+                    Uri url = new Uri(links[dlgF1.selectd].ToString());
+                    dwnAni(url, fileName);
+                }
+            }
+        }
+
+        private void tabPage2_Click(object sender, EventArgs e) {
+
+        }
+
+        private void modeTab_TabIndexChanged(object sender, EventArgs e) {
+           
+        }
+
+        private void modeTab_SelectedIndexChanged(object sender, EventArgs e) {
+            if (modeTab.SelectedIndex==0) {
+                modeTab.Size=new Size(614, 116);
+            }
+            else {
+
+                modeTab.Size=new Size(614, 282);
+            }
+        }
+
+        private void btnDwnl2_Click(object sender, EventArgs e) {
+            selFuente=false;
+            if (unCap.Checked) {
+                if (aniLink2.Text.Contains("http://")||aniLink2.Text.Contains("https://")) {
+                    inicio();
+                    dlgF1.Size=new Size(dlgF1.Size.Width, 0x83);
+                    selFuente=dlgF1.noask;
+                    dlgF1.selvis=true;
+                    capitulos.Add(aniLink2.Text);
+                    listAnime();
+                }
+                else {
+                    aniLink2.Text="http://"+aniLink2.Text;
+                    inicio();
+                    dlgF1.Size=new Size(dlgF1.Size.Width, 0x83);
+                    selFuente=dlgF1.noask;
+                    dlgF1.selvis=true;
+                    capitulos.Add(aniLink2.Text);
+                    listAnime();
+                }
+            }
+            if (lastChap.Checked) {
+                agregaCapitulos(numeroLink(), 0x3e8);
+                dlgF1.Size=new Size(dlgF1.Size.Width, 0x6a);
+                dlgF1.selvis=false;
+            }
+            if (hastaCap.Checked) {
+                if (int.Parse(numCap.Value.ToString())<numeroLink()) {
+                    MessageBox.Show("Debes ingresar un numero de Capitulo Mayor al del Link, como por ejemplo el: "+(numeroLink()+1));
+                    numCap.Value=numeroLink()+1;
+                    dlgF1.selvis=false;
+                }
+                else {
+                    agregaCapitulos(numeroLink(), int.Parse(numCap.Value.ToString()));
+                    dlgF1.Size=new Size(dlgF1.Size.Width, 0x6a);
+                    dlgF1.selvis=false;
+                }
+            }
+        }
+
+        private void aniLink1_Click(object sender, EventArgs e) {
+
+        }
+
+        private void aniLink1_TextChanged(object sender, EventArgs e) {
+            aniLink2.Text=aniLink1.Text;
+        }
+
+        private void aniLink2_Click(object sender, EventArgs e) {
+
+        }
+
+        private void aniLink2_TextChanged(object sender, EventArgs e) {
+            aniLink1.Text=aniLink2.Text;
+        }
+
+        private void btnAdw_Click(object sender, EventArgs e) {
+            if (listChap.Items.Count>0) {
+                btnAdw.Enabled=false;
+                btnDels.Enabled=false;
+                btnCli.Enabled=false;
+                folderBD1.Description="Seleccione el Directorio en el que se van a descargar los Capitulos de la Lista";
+                folderBD1.ShowDialog();
+                flder=folderBD1.SelectedPath;
+                cont=listChap.Items.Count;
+                autoDownloader.Enabled=true;
+            }
+            else {
+                MessageBox.Show("A\x00f1ada algun cap\x00edtulo a la lista antes de iniciar una descarga", "Error");
+            }
+        }
+
+        private void autoDownloader_Tick(object sender, EventArgs e) {
+            cont=listChap.Items.Count;
+            if (cont>=1) {
+                object[] objArray1 = new object[] { flder, @"\", listChap.Items[0], ".mp4" };
+                string path = string.Concat(objArray1);
+                Uri url = new Uri(linkcaps[0].ToString());
+                BajarLista(url, path);
+                autoDownloader.Enabled=false;
+            }
+            else {
+                autoDownloader.Enabled=false;
+                MessageBox.Show("Descarga de Lista Completada!");
+                delLis();
+            }
+        }
+
+        private void tmrCtrl_Tick(object sender, EventArgs e) {
+            if (timers==1) {
+                listDwl.Items.Add(listChap.Items[0]);
+                listChap.Items.RemoveAt(0);
+                listSour.Items.RemoveAt(0);
+                capitulos.RemoveAt(0);
+                linkcaps.RemoveAt(0);
+                autoDownloader.Enabled=true;
+            }
+            timers++;
         }
     }
 }
